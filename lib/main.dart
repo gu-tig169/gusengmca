@@ -46,7 +46,7 @@ class _State extends State<MyApp> {
                        Text('${activities[index]}',
                       style: TextStyle(fontSize: 26),
                        ),
-                       GestureDetector(
+                       GestureDetector( //Hade enormt svårt för att implementera både Cancel-button och checkboxen, tacksam för svar på hur man gör detta på bästa sätt. 
                          child: Icon(Icons.cancel_outlined),
                          onTap: () {
                          }

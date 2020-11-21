@@ -1,142 +1,77 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'SecondView.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MaterialApp(
+    home: MyApp(),
+  ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: MainView(),
-    );
-  }
+  _State createState() => _State();
 }
 
-class MainView extends StatelessWidget {
+class _State extends State<MyApp> {
+  final List<String> activities = <String>['Fiska', 'Städa', 'Åka båt', 'Programmera'];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: (Colors.blue),
       appBar: AppBar(
-        centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.black),
-        backgroundColor: Colors.yellow,
-        title: Text('To-Do List',
-            style: TextStyle(color: Colors.black, 
-            fontSize: 30)
-            ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.more_vert, 
-            color: Colors.black),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text('All  Done  Undone'),
-
-                  //Enda funktionen jag inte riktigt lyckades implementera var drop-down-menyn för att se "All", "Done" och "Undone". Tacksam för feedback på hur man bäst gör det :)
-
-                );
-                }
-              );
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: (_list()),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.black,
-        onPressed: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => SecondView()));
-        },
-        child: Icon(Icons.add),
-      ),
-    );
-  }
-
-  Widget _list() {
-    return ListView(
-      children: [
-        _item('Gå och fiska'),
-        Divider(),
-        _item('Äta på restaurang'),
-        Divider(),
-        _item('Lära mig Flutter'),
-        Divider(),
-        _item('Spela Fortnite'),
-        Divider(),
-        _item('Handla'),
-        Divider(),
-        _item('Plocka svamp'),
-        Divider(),
-        _item('Träna'),
-        Divider(),
-        _item('Bygga Lego'),
-      ],
-    );
-  }
-
-  Widget _item(text) {
-    return Padding(
-      padding: const EdgeInsets.all(5.0),
-      child: Row(children: [
-        Checkbox(value: false, onChanged: _onChanged),
-        Text(text, style: TextStyle(fontSize: 25)),
-        Icon(
-          Icons.close_outlined,
+        backgroundColor: Colors.purple,
+        title: Text('To-Do-List',
+        style: TextStyle(color: Colors.white,
+        fontSize: 26,
         ),
-      ]
+        ),
       ),
-    );
-  }
-  void _onChanged(bool value) {
-  }
-}
-
-//Andra vyn där man lägger till nya aktiviteter
-
-class SecondView extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blue,
-      appBar: AppBar(
-        centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.black),
-        backgroundColor: Colors.yellow,
-        title: Text('To-Do List',
-            style: TextStyle(color: Colors.black, fontSize: 30)),
-      ),
-      body: Column( 
-        children: [ 
-          _whatToDoField(),
-          RaisedButton(
-            onPressed: () {
-          },
-          child: Text('+ Add'),
-          ), 
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.all(20),
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(8),
+              itemCount: activities.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                  height: 70,
+                  margin: EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                       Text('${activities[index]}',
+                      style: TextStyle(fontSize: 26),
+                       ),
+                       GestureDetector( //Hade enormt svårt för att implementera både Cancel-button och checkboxen, tacksam för svar på hur man gör detta på bästa sätt. 
+                         child: Icon(Icons.cancel_outlined),
+                         onTap: () {
+                         }
+                       )
+                    ]
+                    )
+                  );
+              }
+            )
+          )
+          
         ]
       ),
-    );
-  }
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.purple,
+        child: Icon(Icons.add),
+        onPressed: () async {
+          var result = await Navigator.push(
 
-//Här matar man i ett senare skede in nya aktiviteter att lägga till.
+            context, MaterialPageRoute(builder: (context) => (SecondView()))
 
-  Widget _whatToDoField() {
-    return Container(
-      height: 60,
-      margin: EdgeInsets.all(5.0),
-      child: TextField(
-        decoration: InputDecoration(
-            hintText: 'What are you going to do?',
-            border: const OutlineInputBorder()),
+          ); 
+        activities.add(result);
+        setState(() {});
+        },
       ),
     );
   }

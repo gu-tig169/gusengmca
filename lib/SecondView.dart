@@ -30,6 +30,9 @@ class SecondView extends StatefulWidget {
         children: [ 
           TextField(
               controller: activityController,
+              style: TextStyle(
+              fontSize: 26, 
+              fontWeight: FontWeight.bold),
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: 'What will you do today?',
@@ -40,9 +43,11 @@ class SecondView extends StatefulWidget {
               ),
             ),
             RaisedButton(
+              color: Colors.purple,
             child: Text('Add',
             style: TextStyle(
               fontSize: 20,
+              color: Colors.white,
             )),
             onPressed: () {
               Navigator.pop(context, activityController.text);

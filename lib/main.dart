@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/Api.dart';
 import 'SecondView.dart';
 import 'Todo.dart';
 
@@ -14,12 +15,37 @@ class MyApp extends StatefulWidget {
 }
 
 class _State extends State<MyApp> {
-  List<Todo> activities = [Todo('name', false)];
 
- var filterBy = 'all';
-  
+  List<Todo> activities = [];
+  List<Todo> activitiesTemp = [];
+  FilterState state = FilterState.ALL;
+
+  @override
+  void initState() {
+    
+    super.initState();
+    fetchData();
+  }
+
+  fetchData() async{
+    print('Hämta todos');
+    var data = await ApiService.getTodos();
+    print(data);
+    activities.clear();
+    activities.addAll(data);
+    refreshTempList();
+    setState(() {
+      
+    });
+  }
+
+  saveTodo(Todo todo) async{
+    var res = await ApiService.addTodo(todo);
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -32,16 +58,30 @@ class _State extends State<MyApp> {
         actions: [
           PopupMenuButton(
             icon: Icon(Icons.more_vert),
-            onSelected: (value) {
-              setState(() {
-                filterBy = value;
-              });
-            },
             itemBuilder: (context) => [
-              PopupMenuItem(child: Text('All'), value: 'All'),
+              PopupMenuItem(child: Text('All'), value: 'All' ,),
               PopupMenuItem(child: Text('Done'), value: 'Done'),
               PopupMenuItem(child: Text('Not done'), value: 'Not done'),
             ],
+
+            onSelected: (value) {
+            //print("clicked ${value}");
+              if(value=="All"){
+                state = FilterState.ALL;
+                refreshTempList();
+                setState(() {});
+              }
+              else if(value=="Done"){
+                state = FilterState.DONE;
+                refreshTempList();
+                setState(() {});
+                //print('size is ${activitiesTemp.length}');
+              }else if(value == "Not done"){
+                state = FilterState.NOTDONE;
+                refreshTempList();
+                setState(() {});
+              }
+            },
           )
         ],
       ),
@@ -54,9 +94,9 @@ class _State extends State<MyApp> {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(2),
-              itemCount: activities.length,
-              itemBuilder: (BuildContext context, int index) {
-                var todo =  activities[index];
+                itemCount: activitiesTemp.length,
+                itemBuilder: (BuildContext context, int index) {
+                var todo =  activitiesTemp[index];
                 return Container(
                   height: 70,
                   margin: EdgeInsets.all(6),
@@ -70,21 +110,37 @@ class _State extends State<MyApp> {
                         value: todo.done,
                         onChanged: (bool newValue) {
                           todo.done = newValue;
-                          setState(() {
-                            
+                          refreshTempList();
+                          setState(() {       
                           });
                         }
                       ),
-                       Text(todo.name,
+                      GestureDetector(
+                        onTap: () async{
+                          //print('$index ${activities[index].name}');
+                        var todo = await Navigator.push(
+                          context, MaterialPageRoute(
+                            builder: (context) => (SecondView(todo: activities[index], isEdit: true,)))
+                        ); 
+                    if(todo == null){
+                      return;
+                    }
+
+                    final result = ApiService.putTodo(todo);
+                    print('$result');
+                    activities[index] = todo;
+                    refreshTempList();
+                    setState(() {
+                      
+                    });
+
+                        },child: Text(todo.name,
                       style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                        ),
+                      ),
                        CloseButton(      
                          onPressed: () {
-                           var removeMe = activities[index];
-                           setState(() {
-                             activities.remove(removeMe);
-
-                           });
+                           remove(index);
                          },
                        ),
                        Divider(), 
@@ -93,24 +149,57 @@ class _State extends State<MyApp> {
                   );
               }
             )
-          )
-          
+          )   
         ]
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.purple,
         child: Icon(Icons.add),
-        onPressed: () async {
-          var result = await Navigator.push(
+        onPressed: () async {    
 
+          var result = await Navigator.push(
             context, MaterialPageRoute(
               builder: (context) => (SecondView()))
-
           ); 
-        activities.add(Todo(result, false)); 
-        setState(() {});
+       if(result == null){
+         return;
+       }
+
+          add(result);
+          setState(() {});
+          saveTodo(activities.last); // Sparar todo
         },
       ),
     );
   }
+
+  remove(index) async{
+    final response = await ApiService.deleteTodo(activities.removeAt(index).id);
+    print('delete $response');
+    refreshTempList();
+    setState(() {      
+    });
+  }
+
+  add(Todo todo){
+    activities.add(todo);
+    refreshTempList();
+  }
+
+  refreshTempList(){
+    switch(state){
+      case FilterState.ALL:
+      activitiesTemp = List.from(activities);
+      break;
+      case FilterState.DONE:
+       activitiesTemp = activities.where((element) => element.done == true).toList();
+      break;
+      case FilterState.NOTDONE:
+        activitiesTemp = activities.where((element) => element.done == false).toList();
+      break;
+    }
+  }
 }
+  enum FilterState{
+    ALL, DONE, NOTDONE
+  }

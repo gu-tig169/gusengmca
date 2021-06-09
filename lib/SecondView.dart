@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/Todo.dart';
 
 class SecondView extends StatefulWidget {
+  Todo todo;
+  bool isEdit = false;
+
+  SecondView({this.todo, this.isEdit = false});
+
+
   @override
   SecondViewState createState() => SecondViewState();
 }
@@ -16,6 +23,10 @@ class SecondView extends StatefulWidget {
   }
   @override  
   Widget build(BuildContext context) {
+    if(widget.todo !=null){
+      print('tod is ${widget.todo.toJson()}  ${widget.isEdit}');
+      activityController.text = widget.todo.name;
+    }
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -50,7 +61,13 @@ class SecondView extends StatefulWidget {
               color: Colors.white,
             )),
             onPressed: () {
-              Navigator.pop(context, activityController.text);
+              final todo  = Todo(activityController.text, false);
+              if(widget.isEdit){
+                todo.id = widget.todo.id;
+                todo.done = widget.todo.done;
+              }
+              //print('data is ${todo.toJson()}');
+              Navigator.pop(context, todo);
             },
           ),
         ]

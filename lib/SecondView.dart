@@ -24,7 +24,7 @@ class SecondView extends StatefulWidget {
   @override  
   Widget build(BuildContext context) {
     if(widget.todo !=null){
-      print('tod is ${widget.todo.toJson()}  ${widget.isEdit}');
+      //print('todo är ${widget.todo.toJson()}  ${widget.isEdit}');
       activityController.text = widget.todo.name;
     }
     return Scaffold(

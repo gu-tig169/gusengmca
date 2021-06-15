@@ -24,7 +24,6 @@ static Future addTodo(Todo todo, {String name}) async {
   static Future<List<Todo>> getTodos() async{
     var response = await http.get('$apiUrl/todos?key=$apiKey');
     String bodyString = response.body;
-    //print('${bodyString} ${'$apiUrl/todos?key=$apiKey'}');
     var json = jsonDecode(bodyString);
     return json.map<Todo>((data){
       return Todo.fromJson(data);

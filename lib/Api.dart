@@ -7,7 +7,7 @@ class ApiService {
   static final String apiUrl = 'https://todoapp-api-6tdiq.ondigitalocean.app';
   static final String apiKey = '79f8b7e4-23ba-40b3-9c31-0a77562a646d';
 
-static Future addTodo(Todo todo, {String name}) async {
+static Future<http.Response> addTodo(Todo todo, {String name}) async {
   Map<String,dynamic> json = todo.toJson();
   var bodyString = jsonEncode(json);
   return await http.post(
@@ -30,13 +30,12 @@ static Future addTodo(Todo todo, {String name}) async {
     }).toList();
   }
 
-  static Future putTodo(Todo todo) async {
+  static Future<http.Response> putTodo(Todo todo) async {
     String id = todo.id;
-
     Map<String, dynamic> json = todo.toJson();
     var bodyString = jsonEncode(json);
     print(bodyString);
-    await http.put('$apiUrl/todos/$id?key=$apiKey',
+    return await http.put('$apiUrl/todos/$id?key=$apiKey',
       body: bodyString,
       headers: {'Content-Type': 'application/json'},
       ); 

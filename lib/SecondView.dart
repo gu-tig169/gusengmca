@@ -24,7 +24,6 @@ class SecondView extends StatefulWidget {
   @override  
   Widget build(BuildContext context) {
     if(widget.todo !=null){
-      //print('todo är ${widget.todo.toJson()}  ${widget.isEdit}');
       activityController.text = widget.todo.name;
     }
     return Scaffold(
@@ -66,7 +65,6 @@ class SecondView extends StatefulWidget {
                 todo.id = widget.todo.id;
                 todo.done = widget.todo.done;
               }
-              //print('data is ${todo.toJson()}');
               Navigator.pop(context, todo);
             },
           ),

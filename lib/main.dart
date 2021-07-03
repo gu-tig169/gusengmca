@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:myapp/Api.dart';
 import 'SecondView.dart';
@@ -41,6 +43,12 @@ class _State extends State<MyApp> {
 
   saveTodo(Todo todo) async{
     var res = await ApiService.addTodo(todo);
+    List<dynamic> result = jsonDecode(res.body);
+    print('Res save '+ result[result.length-1]['id']);
+    todo.id =  result[result.length-1]['id'];
+    add(todo);
+    setState(() {});
+
   }
 
   @override
@@ -65,7 +73,6 @@ class _State extends State<MyApp> {
             ],
 
             onSelected: (value) {
-            //print("clicked ${value}");
               if(value=="All"){
                 state = FilterState.ALL;
                 refreshTempList();
@@ -75,7 +82,6 @@ class _State extends State<MyApp> {
                 state = FilterState.DONE;
                 refreshTempList();
                 setState(() {});
-                //print('size is ${activitiesTemp.length}');
               }else if(value == "Not done"){
                 state = FilterState.NOTDONE;
                 refreshTempList();
@@ -108,8 +114,10 @@ class _State extends State<MyApp> {
                         checkColor: Colors.white,
                         activeColor: Colors.purple,
                         value: todo.done,
-                        onChanged: (bool newValue) {
+                        onChanged: (bool newValue) async {
                           todo.done = newValue;
+                        final result =  await ApiService.putTodo(todo);
+                        print('Put ${result.body}');
                           refreshTempList();
                           setState(() {       
                           });
@@ -117,7 +125,6 @@ class _State extends State<MyApp> {
                       ),
                       GestureDetector(
                         onTap: () async{
-                          //print('$index ${activities[index].name}');
                         var todo = await Navigator.push(
                           context, MaterialPageRoute(
                             builder: (context) => (SecondView(todo: activities[index], isEdit: true,)))
@@ -125,14 +132,11 @@ class _State extends State<MyApp> {
                     if(todo == null){
                       return;
                     }
-
                     final result = ApiService.putTodo(todo);
                     print('$result');
                     activities[index] = todo;
                     refreshTempList();
-                    setState(() {
-                      
-                    });
+                    setState(() {});
 
                         },child: Text(todo.name,
                       style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
@@ -164,10 +168,7 @@ class _State extends State<MyApp> {
        if(result == null){
          return;
        }
-
-          add(result);
-          setState(() {});
-          saveTodo(activities.last); // Sparar todo
+          saveTodo(result); // Sparar todo
         },
       ),
     );
